@@ -33,5 +33,5 @@ class RedisProxy(MasterProxy):
 
 
 if __name__ == '__main__':
-    xiciRedisProxy = RedisProxy('http://www.xicidaili.com/nn/', 'http://www.xicidaili.com', redis_port='7379')
+    xiciRedisProxy = RedisProxy('http://www.xicidaili.com/nn/', 'http://www.xicidaili.com', proxy_max=80, restart_min=20, redis_port='7379')
     xiciRedisProxy.proxy_main(xiciRedisProxy)

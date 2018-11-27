@@ -1,3 +1,5 @@
+import threading
+
 import urllib3
 import time
 import random
@@ -92,12 +94,27 @@ class MasterProxy(object):
                 if datetime.datetime.now().second % check_second == 0:
                     print('  [INFO] Check Ip Pool : ', datetime.datetime.now())
                     now_ip_pool = proxy.get_ip_pool()
-                    for ip in now_ip_pool:
-                        if isinstance(ip, str):
-                            proxy.ip_check(proxy, ip)
-                        else:
-                            proxy.ip_check(proxy, ip.decode('utf-8'))
+                    proxy.thread_ip_check(proxy, now_ip_pool)
+                    print("[INFO] end time:", datetime.datetime.now())
                     print('  [INFO] Ip Pool length: ', proxy.ip_pool_length())
+
+    """多线程批量验证代理ip池"""
+    def thread_ip_check(self, proxy, now_ip_pool):
+        threads = []
+        for ip in now_ip_pool:
+            if isinstance(ip, str):
+                thread = threading.Thread(target=proxy.ip_check, args=(proxy, ip,))
+                threads.append(thread)
+                # proxy.ip_check(proxy, ip)
+            else:
+                thread = threading.Thread(target=proxy.ip_check, args=(proxy, ip.decode('utf-8'),))
+                threads.append(thread)
+                # proxy.ip_check(proxy, ip.decode('utf-8'))
+
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
 
     '''获取代理ip池'''
     def get_ip_pool(self):

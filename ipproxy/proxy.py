@@ -75,13 +75,13 @@ class MasterProxy(object):
                 else:
                     proxy.ip_proxy_deleter(ip)
             except Exception as a:
-                print('[ERROR] Ip:', ip, '   ', a)
+                #print('[ERROR] Ip:', ip, '   ', a)
                 proxy.ip_proxy_deleter(ip)
 
     """
         名称：主流程
         功能：1.判断ip池是否小于池容量最小值，若是则启动下载器，爬去代理ip
-              2.每隔20秒校验一次ip池, 也可以自定义
+              2.每隔20秒校验一次代理ip池, 也可以自定义
     """
     def proxy_main(self, proxy, check_second=20):
         while 1:
@@ -91,24 +91,27 @@ class MasterProxy(object):
             else:
                 if datetime.datetime.now().second % check_second == 0:
                     print('  [INFO] Check Ip Pool : ', datetime.datetime.now())
-                    now_ip_pool = proxy.get_ip_pool
+                    now_ip_pool = proxy.get_ip_pool()
                     for ip in now_ip_pool:
-                        proxy.ip_check(proxy, ip)
-                    print('  [INFO] Ip Pool length: ', len(self.ip_pool))
+                        if isinstance(ip, str):
+                            proxy.ip_check(proxy, ip)
+                        else:
+                            proxy.ip_check(proxy, ip.decode('utf-8'))
+                    print('  [INFO] Ip Pool length: ', proxy.ip_pool_length())
 
-    '''获取ip池'''
+    '''获取代理ip池'''
     def get_ip_pool(self):
         return self.ip_pool.copy()
 
-    '''获取ip池长度'''
+    '''获取代理ip池长度'''
     def ip_pool_length(self):
         return len(self.ip_pool)
 
-    '''将ip插入线程池'''
+    '''将ip插入代理ip池'''
     def ip_proxy_saver(self, ip):
         self.ip_pool.add(ip)
 
-    '''从线程池中删除某个ip'''
+    '''从代理ip池中删除某个ip'''
     def ip_proxy_deleter(self, ip):
         self.ip_pool.discard(ip)
 

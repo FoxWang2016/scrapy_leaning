@@ -11,7 +11,7 @@ from scrapy import signals
 from scrapy.utils.project import get_project_settings
 
 
-class DoubanmoviesmSpiderMiddleware(object):
+class DoubanmoviesSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -59,7 +59,7 @@ class DoubanmoviesmSpiderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class DoubanmoviesmDownloaderMiddleware(object):
+class DoubanmoviesDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
@@ -141,9 +141,14 @@ class DefaultHeadersMiddleware(object):
             else:
                 request.meta['proxy'] = proxy.decode('utf-8')
             return request
+        else:
+            self.redis.lpush("doubanmovie:douban_already_urls", request.url)
+            if self.redis.sismember("doubanmovie:douban_download_error_urls", request.url):
+                self.redis.srem("doubanmovie:douban_download_error_urls", request.url)
         return response
 
     def process_exception(self, request, exception, spider):
-        print(exception)
-        print(request.url)
-        self.redis.sadd("doubanmovie_master:douban_download_error_urls", request.url)
+        spider.logger.error(exception, '    ', request.url)
+        self.redis.lpush("doubanmovie:douban_urls", request.url)
+        self.redis.sadd("doubanmovie:douban_download_error_urls", request.url)
+

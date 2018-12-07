@@ -7,7 +7,11 @@ import urllib.request
 from lxml import etree
 import datetime
 
-
+"""
+    基类：爬取代理网站的代理ip，然后保存到容器中，定时进行校验
+          继承类需要重写容器的操作方法，其他爬取和校验的基本方法不需要改变
+    基类的容器为set集合
+"""
 class MasterProxy(object):
 
     def __init__(self, url, home, proxy_max=20, restart_min=5):
@@ -72,7 +76,8 @@ class MasterProxy(object):
                                       " Chrome/60.0.3112.113 Safari/537.36")]
                 urllib.request.install_opener(opener)
                 re = urllib.request.urlopen(url, timeout=3)
-                if re.status >= 200 or re.status <= 300:
+                #if re.status >= 200 or re.status <= 300:
+                if re.status == 200:
                     proxy.ip_proxy_saver(ip)
                 else:
                     proxy.ip_proxy_deleter(ip)
@@ -83,7 +88,7 @@ class MasterProxy(object):
     """
         名称：主流程
         功能：1.判断ip池是否小于池容量最小值，若是则启动下载器，爬去代理ip
-              2.每隔20秒校验一次代理ip池, 也可以自定义
+              2.每隔20秒校验一次代理ip池, 间隔时间可以自定义
     """
     def proxy_main(self, proxy, check_second=20):
         while 1:

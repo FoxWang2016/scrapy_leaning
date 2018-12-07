@@ -1,10 +1,14 @@
 from ipproxy.proxy import MasterProxy
 import redis
 
-
+"""
+    redis继承类：重新实现了对redis容器的操作方法，其他的使用基类方法
+                 爬取的代理ip可以自己定义保存的db名称，默认是common:ip_proxy
+                 如果变更这个名称，需要修改settings文件中的redis代理池名称
+"""
 class RedisProxy(MasterProxy):
 
-    def __init__(self, url, home, proxy_max=20, restart_min=5, redis_db_name='ip_proxy',
+    def __init__(self, url, home, proxy_max=20, restart_min=5, redis_db_name='common:ip_proxy',
                  redis_host="localhost", redis_port="6379", redis_password=''):
         super().__init__(url, home, proxy_max, restart_min)
         # redis_url = 'redis://:@localhost:7379/'
@@ -33,5 +37,6 @@ class RedisProxy(MasterProxy):
 
 
 if __name__ == '__main__':
-    xiciRedisProxy = RedisProxy('http://www.xicidaili.com/nn/', 'http://www.xicidaili.com', proxy_max=80, restart_min=20, redis_port='7379')
+    xiciRedisProxy = RedisProxy('http://www.xicidaili.com/nn/', 'http://www.xicidaili.com', proxy_max=50, restart_min=20
+                                , redis_port='7379')
     xiciRedisProxy.proxy_main(xiciRedisProxy)

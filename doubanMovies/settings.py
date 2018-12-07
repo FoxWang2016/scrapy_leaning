@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for doubanMoviesM project
+# Scrapy settings for doubanMovies project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,22 +9,23 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'doubanMoviesM'
+BOT_NAME = 'doubanMovies'
 
-SPIDER_MODULES = ['doubanMoviesM.spiders']
-NEWSPIDER_MODULE = 'doubanMoviesM.spiders'
+SPIDER_MODULES = ['doubanMovies.spiders']
+NEWSPIDER_MODULE = 'doubanMovies.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
 USER_AGENTS = [
-   'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) '
-   'Version/5.1 Safari/534.50',
-   'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36',
+   'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50',
    'User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; TencentTraveler 4.0)',
    'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-   'User-Agent:Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko)'
-   ' Version/5.1 Safari/534.50']
+   'User-Agent:Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50']
+# from faker import Factory
+# f = Factory.create()
+# USER_AGENT = f.user_agent()
+
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -35,20 +36,20 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 10
-DOWNLOAD_TIMEOUT = 30
+DOWNLOAD_DELAY = 5
+DOWNLOAD_TIMEOUT = 100
 
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+#COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
 
-# Override the default request headers:
+# Override the default request headers:PROXIES
 #DEFAULT_REQUEST_HEADERS = {
 #   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 #   'Accept-Language': 'en',
@@ -57,14 +58,13 @@ COOKIES_ENABLED = False
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    'doubanMoviesM.middlewares.MasterMovieMiddleware': 543,
-#    'doubanMoviesM.middlewares.ProxyMiddleware': 442,
+#    'doubanMovies.middlewares.MasterMovieMiddleware': 543,
 # }
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'doubanMoviesM.middlewares.DefaultHeadersMiddleware': 441,
+   'doubanMovies.middlewares.DefaultHeadersMiddleware': 441,
 }
 
 # Enable or disable extensions
@@ -76,8 +76,27 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'doubanMoviesM.pipelines.DoubanmoviesmPipeline': 300,
+   'doubanMovies.pipelines.DoubanmoviesPipeline': 400,
+   'scrapy_redis.pipelines.RedisPipeline': 300,
 }
+
+# 使用scrapy-redis里的去重组件，不使用scrapy默认的去重方式picklecompat
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# 使用scrapy-redis里的调度器组件，不使用默认的调度器
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+# 允许暂停，redis请求记录不丢失
+SCHEDULER_PERSIST = True
+# 默认的scrapy-redis请求队列形式（按优先级）
+SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.SpiderPriorityQueue"
+
+# 指定数据库的主机IP
+REDIS_HOST = "127.0.0.1"
+# 指定数据库的端口号
+REDIS_PORT = 7379
+# redis密码
+REDIS_PASSWORD = ''
+# redis代理池
+REDIS_IP_PROXY_NAME = 'common:ip_proxy'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -100,30 +119,19 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-PROXIES = ['http://111.75.223.9:35918/',
-           #'http://61.135.217.7:80/',
-           'http://221.227.31.84:8123/',
-           'http://121.31.151.105:8123/']
-
-DOWNLOAD_TIMEOUT = 60
-# RETRY_ENABLED = True
-# RETRY_TIMES = 1
-# RETRY_HTTP_CODES = [10061, 10060]
-
-# 指定数据库的主机IP
-REDIS_HOST = "127.0.0.1"
-# 指定数据库的端口号
-REDIS_PORT = 7379
-# redis密码
-REDIS_PASSWORD = ''
-# redis代理池
-REDIS_IP_PROXY_NAME = 'common:ip_proxy'
+#mysql
+MYSQL_HOST = 'localhost'
+MYSQL_DBNAME = 'spiderdb'
+MYSQL_USER = 'root'
+MYSQL_PASSWD = '123456'
+MYSQL_CHARSET = 'utf8'
 
 #log
 # from datetime import datetime
 # to_day = datetime.now()
-# log_file_path = 'log/master_movie_{}_{}_{}.log'.format(to_day.year, to_day.month, to_day.day)
+# log_file_path = 'log/saver_movie_{}_{}_{}.log'.format(to_day.year, to_day.month, to_day.day)
 #
 # LOG_ENABLED = False
-# LOG_LEVEL = 'DEBUG'
+# LOG_LEVEL = 'ERROR'
 # LOG_FILE = log_file_path
+

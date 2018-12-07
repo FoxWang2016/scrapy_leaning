@@ -6,11 +6,14 @@ from scrapy.http import Request
 
 from doubanMoviesM.items import DoubanmoviesmItem
 
-
+"""
+    分布式爬虫：主爬虫，用于爬取待爬信息的url，将信息保存到redis，供子爬虫爬取
+                此爬虫支持断点续爬，如果中断，重启即可
+"""
 class MastermovieSpider(scrapy.Spider):
     name = 'mastermovie'
     allowed_domains = ['movie.douban.com']
-    start_urls = ['https://movie.douban.com/tag/#/']
+    start_urls = ['https://movie.douban.com/tag/']
     home = 'https://movie.douban.com'
 
     def parse(self, response):

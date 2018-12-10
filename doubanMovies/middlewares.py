@@ -148,7 +148,11 @@ class DefaultHeadersMiddleware(object):
         return response
 
     def process_exception(self, request, exception, spider):
-        spider.logger.error(exception, '    ', request.url)
-        self.redis.lpush("doubanmovie:douban_urls", request.url)
-        self.redis.sadd("doubanmovie:douban_download_error_urls", request.url)
+        #spider.logger.error(exception, '    ', request.url)
+        url = request.url
+        index = url.find('r=')
+        if index > -1:
+            url = url[index + 2:].replace("%3A", ":").replace("%2F", "/")
+        self.redis.lpush("doubanmovie:douban_urls", url)
+        self.redis.sadd("doubanmovie:douban_download_error_urls", url)
 
